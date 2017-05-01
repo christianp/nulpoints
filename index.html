@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width">
+        <meta charset="utf-8">
+        <script src="country-data.js"></script>
+        <script src="vue.js"></script>
+        <script src="Sortable.js"></script>
+        <script src="vuedraggable.js"></script>
+        <link rel="stylesheet" href="flag-icon/css/flag-icon.min.css"></link>
+        <link rel="stylesheet" href="style.css"></link>
+        <link href="https://fonts.googleapis.com/css?family=Rubik|Rubik+Mono+One" rel="stylesheet">
+    </head>
+    <body>
+        <script type="text/x-template" id="country-template">
+            <div class="country">
+                <span class="points"><span v-if="model.judged">{{points}}</span></span>
+                <span class="flag"><span class="flag-icon" :class="model.css"></span></span>
+                <span class="name">{{model.running_order}}. {{model.country}}</span>
+                <span class="picture"><img :src="model.performer_image"></span>
+                <span class="artist"><a :href="model.participant_link" target="_blank">{{model.performer}}</a></span>
+                <span class="title">
+                    <a class="play btn-link" :href="model.song_youtube" target="_blank">♫</a>
+                    {{model.title}} 
+                </span>
+            </div>
+        </script>
+
+        <div id="app">
+            <header>
+                <h1>Nul points!</h1>
+            </header>
+            <main>
+                <p>Drag songs up to the "songs I've heard" list to award points.</p>
+                <h2>Songs I've heard</h2>
+                <draggable id="countries-judged" v-model="countries_judged" :options="{group:'countries'}" :class="{empty: countries_judged.length==0}">
+                    <country :model="country" v-for="country in countries_judged"></country>
+                </draggable>
+                <h2>Songs I haven't heard</h2>
+                <draggable id="countries-unjudged" v-model="countries_unjudged" :options="{group:'countries', sort: false}">
+                    <country :model="country" v-for="country in countries_unjudged"></country>
+                </draggable>
+            </main>
+
+            <footer>
+                <p>by <a href="http://somethingorotherwhatever.com">clp</a>!</p>
+            </footer>
+        </div>
+
+        <script src="thing.js" charset="utf-8"></script>
+    </body>
+</html>

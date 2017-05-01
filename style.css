@@ -1,0 +1,152 @@
+html {
+  font-size: 12px;
+  font-family: 'Rubik', sans-serif;
+}
+h1,h2,h3,h4,h5,h6 {
+  font-family: 'Rubik Mono One',sans-serif;
+}
+#countries-judged {
+  margin-bottom: 2rem;
+  min-height: 2rem;
+}
+#countries-judged.empty {
+    border: 1px dashed;
+}
+#countries-unjudged .country {
+    background: hsl(341, 38%, 53%);
+}
+#spacer {
+  width: 100%;
+  height: 2rem;
+}
+.country {
+    cursor: ns-resize;
+    display: grid;
+    background: #b82352;
+    color: white;
+    grid-template-columns: 3rem 2rem 1fr 2rem 1fr;
+    grid-gap: 0rem 0.5rem;
+    padding: 0.2rem;
+}
+.country a {
+  color: white;
+  text-decoration: none;
+}
+.country a:hover {
+  text-decoration: underline;
+}
+.country .play {
+  color: lightgreen;
+}
+
+.country > * {
+    line-height: 2rem;
+    vertical-align: middle;
+}
+.country ~ .country {
+  margin-top: 0.5rem;
+}
+
+.country .picture img {
+  height: 2rem;
+  width: 2rem;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+.country .points {
+  font-size: 2rem;
+  text-align: right;
+}
+.country .flag-icon {
+    height: 2rem;
+    line-height: 2rem;
+    width: 2rem;
+}
+
+
+body {
+    margin: 0 2rem;
+}
+
+div#app {
+    width: 100%;
+}
+
+.country .points {
+  grid-column: 1;
+  grid-row: 1/3;
+  justify-self: end;
+  align-self: center;
+}
+
+.country .flag {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    align-self: center;
+}
+
+.country .name {
+    grid-column: 3;
+    grid-row: 1 / 3;
+    align-self: center;
+}
+
+.country .picture {
+    grid-column: 4;
+    grid-row: 1;
+}
+
+.country .artist {
+    grid-column: 5;
+    grid-row: 1;
+}
+
+.country .title {
+    grid-column: 4 /6;
+    grid-row: 2;
+}
+@media screen and (min-width:720px) {
+  .country {
+    grid-template-columns: 2rem 2rem 1fr 2rem 1fr 1fr;
+  }
+  .country .flag {
+      grid-column: 2;
+      grid-row: 1;
+  }
+
+  .country .picture {
+      grid-column: 4;
+      grid-row: 1;
+  }
+
+  .country .artist {
+      grid-column: 5;
+      grid-row: 1;
+  }
+
+  .country .title {
+      grid-column: 6;
+      grid-row: 1;
+  }
+
+  .country .name {
+      grid-column: 3;
+      grid-row: 1;
+  }
+}
+@media screen and (min-width: 960px) {
+  html {
+    font-size: 15px;
+  }
+}
+@media screen and (min-width: 1240px) {
+  html {
+    font-size: 15px;
+  }
+}
+@media screen and (min-width: 1490px) {
+  html {
+    font-size: 24px;
+  }
+}
