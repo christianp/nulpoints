@@ -31,13 +31,14 @@
                 <h1>Nul points!</h1>
             </header>
             <main>
+                <h2>My name is <input id="name" v-model="name"></h2>
                 <p>Drag songs up to the "songs I've heard" list to award points.</p>
                 <h2>Songs I've heard</h2>
-                <draggable id="countries-judged" v-model="countries_judged" :options="{group:'countries'}" :class="{empty: countries_judged.length==0}">
+                <draggable id="countries-judged" v-model="countries_judged" :options="{group:'countries', scroll: true}" :class="{empty: countries_judged.length==0}">
                     <country :model="country" v-for="country in countries_judged"></country>
                 </draggable>
                 <h2>Songs I haven't heard</h2>
-                <draggable id="countries-unjudged" v-model="countries_unjudged" :options="{group:'countries', sort: false}">
+                <draggable id="countries-unjudged" v-model="countries_unjudged" :options="{group:'countries', sort: false, scroll: true}">
                     <country :model="country" v-for="country in countries_unjudged"></country>
                 </draggable>
             </main>
