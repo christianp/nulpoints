@@ -5,6 +5,14 @@ html {
 h1,h2,h3,h4,h5,h6 {
   font-family: 'Rubik Mono One',sans-serif;
 }
+
+header {
+    text-align: center;
+}
+header h1 {
+    margin: 0;
+}
+
 #countries-judged {
   margin-bottom: 2rem;
   min-height: 2rem;
@@ -23,9 +31,8 @@ h1,h2,h3,h4,h5,h6 {
     display: grid;
     background: #b82352;
     color: white;
-    grid-template-columns: 3rem 2rem 1fr 2rem 1fr;
-    grid-template-areas: "score flag name picture artist"
-                         "score flag name title title";
+    grid-template-columns: 3rem 2rem 1fr 4rem 2fr;
+    grid-template-areas: "score flag name picture artist"                           "score flag name picture title";
     grid-gap: 0rem 0.5rem;
     padding: 0.2rem;
 }
@@ -43,17 +50,14 @@ h1,h2,h3,h4,h5,h6 {
   color: lightgreen;
 }
 
-.country > * {
-    line-height: 2rem;
-    vertical-align: middle;
-}
+.country > * {align-self: center;}
 .country ~ .country {
   margin-top: 0.5rem;
 }
 
 .country .picture img {
-  height: 2rem;
-  width: 2rem;
+  height: 4rem;
+  width: 4rem;
   object-fit: cover;
   object-position: center;
   display: block;
@@ -70,7 +74,8 @@ h1,h2,h3,h4,h5,h6 {
 
 
 body {
-    margin: 0 2rem;
+    margin: 0;
+    min-height: 101vh;
 }
 
 div#app {
@@ -114,10 +119,52 @@ input#name {
     list-style: none;
 }
 
-@media screen and (min-width:720px) {
+nav {
+  display:flex;
+}
+
+nav button {
+  flex: 1;
+}
+
+button {
+    background: #2b282b;
+    border: none;
+    font-size: 2rem;
+    padding: 0.5em;
+    color: white;
+    border-top: 5px solid #2b282b;
+}
+button.active {
+  background: hsl(300, 4%, 100%);
+  color: #2b282b;
+}
+
+section {
+    background: #fafafa;
+    padding-top: 1rem;
+    padding-left: 1rem;
+}
+
+section#judging div {
+    padding-left: 1rem;
+}
+
+footer {
+    text-align: right;
+    padding: 0 1rem;
+    margin-top: 5rem;
+}
+
+@media screen and (min-width:795px) {
   .country {
-    grid-template-columns: 3rem 2rem 1fr 2rem 1fr 1fr;
+    grid-template-columns: 3rem 2rem 1fr 8rem 2fr 2fr;
     grid-template-areas: "score flag name picture artist title";
+  }
+
+  .country .picture img {
+    width: 8rem;
+    height: 3rem;
   }
 }
 @media screen and (min-width: 960px) {

@@ -43,9 +43,15 @@ class Tab {
 }
 Vue.component('tab',{
     template: '#tab',
-    props: ['model','currentTab'],
+    props: ['model','currenttab'],
+    computed: {
+        active() {
+            return this.model==this.currenttab;
+        }
+    },
     methods: {
         setTab() {
+            this.$emit('set-tab',this.model);
         }
     }
 });
@@ -132,9 +138,18 @@ const app = new Vue({
     computed: {
 
     },
-    mounted: function() {
+    methods: {
+        setTab(tab) {
+            this.tab = tab;
+        }
+    },
+    created: function() {
         const app = this;
         app.storage = new Storage(app);
+    },
+    mounted: function() {
+        const app = this;
+
         function load_leaderboard() {
             app.storage.get_leaderboard().then(function(l) {
                 app.leaderboard = l.map(function(d) {

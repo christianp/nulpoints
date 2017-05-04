@@ -17,11 +17,10 @@
                 <span class="points"><span v-if="model.judged">{{points}}</span></span>
                 <span class="flag"><span class="flag-icon" :class="model.css"></span></span>
                 <span class="name">{{model.running_order}}. {{model.country}}</span>
-                <span class="picture"><img :src="model.performer_image"></span>
+                <span class="picture"><a :href="model.participant_link" target="_blank"><img :src="model.performer_image"></a></span>
                 <span class="artist"><a :href="model.participant_link" target="_blank">{{model.performer}}</a></span>
                 <span class="title">
-                    <a class="play btn-link" :href="model.song_youtube" target="_blank">♫</a>
-                    {{model.title}} 
+                    <a :href="model.song_youtube" target="_blank"><span class="play btn-link">♫</span> {{model.title}}</a>
                 </span>
             </div>
         </script>
@@ -29,27 +28,26 @@
             <li class="country">
                 <span class="points">{{model.score}}</span>
                 <span class="flag"><span class="flag-icon" :class="model.css"></span></span>
-                <span class="name">{{model.running_order}}. {{model.country}}</span>
-                <span class="picture"><img :src="model.performer_image"></span>
+                <span class="name">{{model.country}}</span>
+                <span class="picture"><a :href="model.participant_link" target="_blank"><img :src="model.performer_image"></a></span>
                 <span class="artist"><a :href="model.participant_link" target="_blank">{{model.performer}}</a></span>
                 <span class="title">
-                    <a class="play btn-link" :href="model.song_youtube" target="_blank">♫</a>
-                    {{model.title}} 
+                    <a :href="model.song_youtube" target="_blank"><span class="play btn-link">♫</span> {{model.title}}</a>
                 </span>
             </div>
         </script>
         <script type="text/x-template" id="tab">
-            <button @click="setTab" :class="{active: currentTab==model}">{{model.label}}</button>
+            <button @click="setTab" :class="{active: active}">{{model.label}}</button>
         </script>
 
         <div id="app">
             <header>
                 <h1>Nul points!</h1>
             </header>
+            <nav>
+                <tab v-for="t in tabs" :model="t" :currenttab="tab" @set-tab="setTab"></tab>
+            </nav>
             <main>
-                <nav>
-                    <tab v-for="t in tabs" :model="t" currentTab="tab"></tab>
-                </nav>
                 <section id="leaderboard" v-show="tab.id=='leaderboard'">
                     <h2>Leaderboard</h2>
                     <ol>
