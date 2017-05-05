@@ -76,13 +76,6 @@ let data = {
     tabs: tabs
 
 }
-if('nulpoints' in localStorage) {
-    let saved_data = JSON.parse(localStorage['nulpoints']);
-    data.countries_judged = saved_data.judged.map(x=>all_countries.find(c=>c.country==x));
-    data.countries_judged.forEach(function(c,i){ c.index = i; c.judged = true })
-    data.countries_unjudged = all_countries.filter(c=>saved_data.judged.indexOf(c.country)==-1);
-    data.name = saved_data.name;
-}
 
 const RATE_URL = 'http://somethingorotherwhatever.com/nulpoints/rate.php';
 class Storage {
@@ -91,23 +84,51 @@ class Storage {
     }
     save_local() {
         let data = {
+            token: this.token,
             name: this.app.name,
             judged: this.app.countries_judged.map(c=>c.country)
         };
         localStorage['nulpoints'] = JSON.stringify(data);
     }
-    set_name(name) {
+    load_local() {
+        let data = {};
+        if('nulpoints' in localStorage) {
+            let saved_data = JSON.parse(localStorage['nulpoints']);
+            console.log(saved_data);
+            this.token = saved_data.token;
+
+            data.countries_judged = saved_data.judged.map(x=>all_countries.find(c=>c.country==x));
+            data.countries_judged.forEach(function(c,i){ c.index = i; c.judged = true })
+            data.countries_unjudged = all_countries.filter(c=>saved_data.judged.indexOf(c.country)==-1);
+            data.name = saved_data.name;
+        }
+        return data;
+    }
+    post(data) {
+        console.log(data.command);
+        let storage = this;
         let d = new FormData();
-        d.append('command','set_name');
-        d.append('name',name);
-        fetch(RATE_URL,{method:'post',mode:'cors',credentials:'include',body:d})
+        Object.entries(data).forEach(function(pair) {
+            let [key,value] = pair;
+            d.append(key,value);
+        });
+        let url = RATE_URL;
+        if(this.token) {
+            url += '?token='+encodeURIComponent(this.token);
+        }
+        fetch(url,{method:'post',mode:'cors',credentials:'include',body:d}).then(function(response) {
+            response.json().then(function(d) {
+                storage.token = d.token;
+                console.log('token',d.token);
+            })
+        });
+    }
+    set_name(name) {
+        this.post({command:'set_name',name:name});
     }
     set_ratings() {
         const ratings = this.app.countries_judged.map(c=>c.country);
-        const d = new FormData();
-        d.append('command','set_ratings');
-        d.append('ratings',JSON.stringify(ratings));
-        fetch(RATE_URL,{method:'post',mode:'cors',credentials:'include',body:d})
+        this.post({command:'set_ratings',ratings:JSON.stringify(ratings)});
     }
     get_leaderboard() {
         return fetch(`${RATE_URL}?command=leaderboard`,{method:'GET',mode:'cors',credentials:'include'}).then(r=>r.json());
@@ -143,9 +164,10 @@ const app = new Vue({
             this.tab = tab;
         }
     },
-    created: function() {
+    beforeCreate: function() {
         const app = this;
         app.storage = new Storage(app);
+        Object.assign(data,app.storage.load_local());
     },
     mounted: function() {
         const app = this;
