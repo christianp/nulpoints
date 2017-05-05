@@ -1,54 +1,78 @@
 <?php
-session_start();
 header('Access-Control-Allow-Origin: http://localhost:8000');
 header('Access-Control-Allow-Credentials: true');
 $db = new SQLite3('ratings.db');
 
-$user = null;
-if(isset($_SESSION['id'])) {
-	$res = $db->query('SELECT id,name FROM users WHERE id='.$_SESSION['id']);
+
+function get_user_with_token($token) {
+	global $db;
+	$stmt = $db->prepare('SELECT id,name,token FROM users WHERE token=:token');
+	$stmt->bindValue(':token',$token,SQLITE3_TEXT);
+	$res = $stmt->execute();
 	$user = $res->fetchArray();
 	$res->finalize();
+	return $user;
 }
-if(!$user) {
-	$db->query('INSERT INTO users (name) VALUES ("")');
-	$rowid = $db->lastInsertRowID();
-	$result = $db->query('SELECT id,name FROM users WHERE rowid='.$rowid);
-	$row = $result->fetchArray();
-	$_SESSION['id'] = $row['id'];
-	$user = $row;
-	$result->finalize();
+
+function get_user() {
+	global $db;
+	if(isset($_GET['token'])) {
+		$token = $_GET['token'];
+		if($user = get_user_with_token($token)) {
+			return $user;
+		}
+	} 
+	$token = uniqid();
+	$db->query('INSERT INTO users (name, token) VALUES ("","'.$token.'")');
+	return get_user_with_token($token);
 }
 
 function get() {
+	switch($_GET['command']) {
+		case 'leaderboard':
+			get_leaderboard();
+			break;
+		default:
+			show();
+	}
+}
+
+function show() {
 	global $db, $user;
 	echo "you: ".json_encode($user);
 	echo "<BR>";
 	$results = $db->query('SELECT * FROM users');
 	while ($row = $results->fetchArray()) {
-		echo json_encode($row);
+		echo json_encode($row)."<br>";
 	}
 	$results->finalize();
-	compute_points();
 }
 
-function compute_points() {
+function compute_leaderboard() {
 	global $db,$user;
 	$results = $db->query('SELECT name,ratings FROM users');
 	$points = array();
 	$point_scheme = [12,10,8,7,6,5,4,3,2,1];
 	while($row = $results->fetchArray()) {
-		?><h3><?= $row['name'] ?></h3><?php
-		$ratings = json_decode($row['ratings']);
-		for($i=0;$i<count($point_scheme);$i++) {
-			if($i<count($ratings)) {
-				?><p><?= $point_scheme[$i] ?>: <?= $ratings[$i] ?></p><?php
-				$points[$ratings[$i]] += $point_scheme[$i];
+		if($row['name']) {
+			$ratings = json_decode($row['ratings']);
+			for($i=0;$i<count($point_scheme);$i++) {
+				if($i<count($ratings)) {
+					$points[$ratings[$i]] += $point_scheme[$i];
+				}
 			}
 		}
 	}
 	arsort($points);
-	echo json_encode($points);
+	$leaderboard = [];
+	foreach($points as $country=>$score) {
+		$leaderboard[] = ["country"=>$country,"score"=>$score];
+	}
+	return $leaderboard;
+}
+
+function get_leaderboard() {
+	echo json_encode(compute_leaderboard());
 }
 
 function set_name() {
@@ -57,6 +81,7 @@ function set_name() {
 	$stmt->bindValue(':id',$user['id'],SQLITE3_INTEGER);
 	$stmt->bindValue(':name',$_POST['name'],SQLITE3_TEXT);
 	$stmt->execute();
+	respond(array());
 }
 function set_ratings() {
 	global $db,$user;
@@ -64,11 +89,17 @@ function set_ratings() {
 	$stmt->bindValue(':id',$user['id'],SQLITE3_INTEGER);
 	$stmt->bindValue(':ratings',$_POST['ratings'],SQLITE3_TEXT);
 	$stmt->execute();
+	respond(array());
+}
+
+function respond($response) {
+	global $user;
+	$response['token'] = $user['token'];
+	echo json_encode($response);
 }
 
 function post() {
 	$command = $_POST['command'];
-	echo $command;
 	switch($command) {
 		case 'set_name':
 			set_name();
@@ -76,11 +107,20 @@ function post() {
 		case 'set_ratings':
 			set_ratings();
 			break;
+		case 'leaderboard':
+			get_leaderboard();
+			break;
 	}
 }
 
 if($_SERVER['REQUEST_METHOD'] === 'POST') {
+	$user = get_user();
 	post();
 } else {
+	if($_GET['token']) {
+		echo "token: ".$_GET['token']."<BR>";
+		$user = get_user();
+		echo "USER: ".json_encode($user)."<BR>";
+	}
 	get();
 }
