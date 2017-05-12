@@ -56,7 +56,34 @@ Vue.component('tab',{
     }
 });
 
-const running_order = Object.keys(country_data);
+const running_order = [
+    "Israel", 
+    "Poland",
+    "Belarus",
+    "Austria",
+    "Armenia",
+    "Netherlands",
+    "Moldova",
+    "Hungary",
+    "Italy",
+    "Denmark",
+    "Portugal",
+    "Azerbaijan",
+    "Croatia",
+    "Australia",
+    "Greece",
+    "Spain",
+    "Norway",
+    "United Kingdom",
+    "Cyprus",
+    "Romania",
+    "Germany",
+    "Ukraine",
+    "Belgium",
+    "Sweden",
+    "Bulgaria",
+    "France"
+];
 
 const country_map = {}
 const all_countries = running_order.map(function(name,i){ 
@@ -97,8 +124,11 @@ class Storage {
             console.log(saved_data);
             this.token = saved_data.token;
 
-            data.countries_judged = saved_data.judged.map(x=>all_countries.find(c=>c.country==x));
-            data.countries_judged.forEach(function(c,i){ c.index = i; c.judged = true })
+            data.countries_judged = saved_data.judged.map(x=>all_countries.find(c=>c.country==x)).filter(x=>x!==undefined);
+            data.countries_judged.forEach(function(c,i){ 
+                c.index = i; 
+                c.judged = true;
+            })
             data.countries_unjudged = all_countries.filter(c=>saved_data.judged.indexOf(c.country)==-1);
             data.name = saved_data.name;
         }
@@ -176,9 +206,12 @@ const app = new Vue({
             app.storage.get_leaderboard().then(function(l) {
                 app.leaderboard = l.map(function(d) {
                     const country = country_map[d.country];
+                    if(!country) {
+                        return;
+                    }
                     country.score = d.score;
                     return country;
-                });
+                }).filter(x=>x!==undefined);
             });
         }
         setInterval(load_leaderboard,5000);
