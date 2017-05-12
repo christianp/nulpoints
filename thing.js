@@ -94,7 +94,13 @@ const all_countries = running_order.map(function(name,i){
 
 let countries_unjudged, countries_judged, name='';
 const tabs = [new Tab('judging','Judge'), new Tab('leaderboard','Leaderboard')];
+let search_bits = {};
+window.location.search.slice(1).split('&').map(function(bit) {
+    let [key,value] = bit.split('=').map(decodeURIComponent);
+    search_bits[key] = value;
+});
 let data = {
+    party: search_bits['party'] || '',
     countries_judged: [],
     countries_unjudged: all_countries.slice(),
     name: '',
@@ -138,6 +144,7 @@ class Storage {
         console.log(data.command);
         let storage = this;
         let d = new FormData();
+        d.append('party',this.app.party);
         Object.entries(data).forEach(function(pair) {
             let [key,value] = pair;
             d.append(key,value);
@@ -161,7 +168,7 @@ class Storage {
         this.post({command:'set_ratings',ratings:JSON.stringify(ratings)});
     }
     get_leaderboard() {
-        return fetch(`${RATE_URL}?command=leaderboard`,{method:'GET',mode:'cors',credentials:'include'}).then(r=>r.json());
+        return fetch(`${RATE_URL}?command=leaderboard&party=${encodeURIComponent(this.app.party)}`,{method:'GET',mode:'cors',credentials:'include'}).then(r=>r.json());
     }
 }
 
