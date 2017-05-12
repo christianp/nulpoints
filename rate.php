@@ -22,8 +22,17 @@ function get_user() {
 			return $user;
 		}
 	} 
+	if(isset($_GET['party'])) {
+		$party = $_GET['party'];
+	} else {
+		$party = '';
+	}
 	$token = uniqid();
-	$db->query('INSERT INTO users (name, token) VALUES ("","'.$token.'")');
+	$stmt = $db->prepare('INSERT INTO users (name, token, party) VALUES ("",:token,:party)');
+	$stmt->bindValue(':token',$token,SQLITE3_TEXT);
+	$stmt->bindValue(':party',$party,SQLITE3_TEXT);
+	$res = $stmt->execute();
+	$res->finalize();
 	return get_user_with_token($token);
 }
 
@@ -39,18 +48,54 @@ function get() {
 
 function show() {
 	global $db, $user;
-	echo "you: ".json_encode($user);
-	echo "<BR>";
+?>
+<table border=1>
+<thead>
+<tr>
+<th>Name</th>
+<th>Group</th>
+<td>12</td>
+<td>10</td>
+<td>8</td>
+<td>6</td>
+<td>5</td>
+<td>4</td>
+<td>3</td>
+<td>2</td>
+<td>1</td>
+</tr>
+</thead>
+<tbody>
+<?php
 	$results = $db->query('SELECT * FROM users');
 	while ($row = $results->fetchArray()) {
-		echo json_encode($row)."<br>";
+		$name = $row['name'];
+		$party = $row['party'];
+		$ratings = json_decode($row['ratings']);
+?>
+<tr>
+	<td><?= $name ?></td>
+	<td><?= $party ?></td>
+	<?php if($ratings) {foreach($ratings as $country) {?><td><?= $country ?></td><?php }} ?>
+</tr>
+<?php
 	}
+?>
+</tbody>
+</table>
+<?php
 	$results->finalize();
 }
 
 function compute_leaderboard() {
 	global $db,$user;
-	$results = $db->query('SELECT name,ratings FROM users');
+	if($_GET['party']) {
+		$stmt = $db->prepare('SELECT name,ratings FROM users WHERE party=:party');
+		$stmt->bindValue(':party',$_GET['party']);
+	} else {
+		$stmt = $db->prepare('SELECT name, ratings FROM users');
+	}
+	$results = $stmt->execute();
 	$points = array();
 	$point_scheme = [12,10,8,7,6,5,4,3,2,1];
 	while($row = $results->fetchArray()) {
@@ -63,6 +108,7 @@ function compute_leaderboard() {
 			}
 		}
 	}
+	$results->finalize();
 	arsort($points);
 	$leaderboard = [];
 	foreach($points as $country=>$score) {
@@ -77,9 +123,10 @@ function get_leaderboard() {
 
 function set_name() {
 	global $db,$user;
-	$stmt = $db->prepare('UPDATE users SET name=:name WHERE id=:id');
+	$stmt = $db->prepare('UPDATE users SET name=:name, party=:party WHERE id=:id');
 	$stmt->bindValue(':id',$user['id'],SQLITE3_INTEGER);
 	$stmt->bindValue(':name',$_POST['name'],SQLITE3_TEXT);
+	$stmt->bindValue(':party',$_POST['party'],SQLITE3_TEXT);
 	$stmt->execute();
 	respond(array());
 }
